@@ -1,0 +1,7 @@
+[project]
+name = "myschool"
+version = "1.0.0"
+description = "My school Mobile Application"
+
+[tool.flet]
+app_title = "My School Application"

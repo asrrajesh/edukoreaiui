@@ -13,8 +13,8 @@ from config.config import (
     WINDOW_RESIZABLE,
 )
 
-
-def main(page: ft.Page):
+# 1. Main MUST be an async function to allow 'await' on startup
+async def main(page: ft.Page):
     page.title = APP_TITLE
     page.theme = ft.Theme(color_scheme_seed=THEME_COLOR)
     page.bgcolor = BACKGROUND_COLOR
@@ -23,73 +23,80 @@ def main(page: ft.Page):
     page.window.height = WINDOW_HEIGHT
     page.window.resizable = WINDOW_RESIZABLE
 
-    def route_change(e: ft.RouteChangeEvent):
+    # 2. Handlers must stay standard synchronous functions
+    def route_change(e: ft.RouteChangeEvent | None = None):
         page.views.clear()
-        page.appbar = None
-        page.drawer = None
+        route = e.route if e is not None else page.route
 
-        route = e.route
-
-        if route == "/login" or route == "/":
+        if not route or route == "/login" or route == "/":
             page.views.append(
                 ft.View(
-                    "/login",
+                    route="/login",
                     controls=[login_view(page)],
                     padding=0,
-                    bgcolor=ft.colors.WHITE,
+                    bgcolor=ft.Colors.WHITE,  
                 )
             )
+            page.appbar = None
+            page.drawer = None
+
         elif route == "/signup":
             page.views.append(
                 ft.View(
-                    "/signup",
+                    route="/signup",
                     controls=[signup_view(page)],
                     padding=0,
-                    bgcolor=ft.colors.WHITE,
+                    bgcolor=ft.Colors.WHITE,  
                 )
             )
+            page.appbar = None
+            page.drawer = None
+
         elif route == "/forgot_password":
             page.views.append(
                 ft.View(
-                    "/forgot_password",
+                    route="/forgot_password",
                     controls=[forgot_password_view(page)],
                     padding=0,
-                    bgcolor=ft.colors.WHITE,
+                    bgcolor=ft.Colors.WHITE,  
                 )
             )
+            page.appbar = None
+            page.drawer = None
+
         elif route == "/home":
-            page.views.append(
-                ft.View(
-                    "/home",
-                    controls=[home_view(page)],
-                    padding=0,
-                    appbar=page.appbar,
-                    drawer=page.drawer,
-                    bgcolor=ft.colors.GREY_50,
-                )
+            home_view_container = ft.View(
+                route="/home",
+                controls=[],
+                padding=0,
+                bgcolor=ft.Colors.GREY_50,  
             )
+            page.views.append(home_view_container)
+            # home_view sets page.appbar/drawer, so the view must already be appended
+            home_view_container.controls = [home_view(page)]
+
         elif route == "/question_bank":
-            page.views.append(
-                ft.View(
-                    "/question_bank",
-                    controls=[question_bank_view(page)],
-                    padding=ft.padding.symmetric(horizontal=24, vertical=16),
-                    appbar=page.appbar,
-                    bgcolor=ft.colors.GREY_50,
-                )
+            question_bank_container = ft.View(
+                route="/question_bank",
+                controls=[],
+                padding=ft.Padding(left=24, right=24, top=16, bottom=16),  
+                bgcolor=ft.Colors.GREY_50,  
             )
+            page.views.append(question_bank_container)
+            question_bank_container.controls = [question_bank_view(page)]
 
         page.update()
 
-    def view_pop(e: ft.ViewPopEvent):
+    async def view_pop(e: ft.ViewPopEvent):
         page.views.pop()
         top_view = page.views[-1]
-        page.go(top_view.route)
+        await page.push_route(top_view.route)
 
+    # Attach event handlers
     page.on_route_change = route_change
     page.on_view_pop = view_pop
-    page.go("/login")
-
+    
+    page.add(login_view(page))
 
 if __name__ == "__main__":
-    ft.app(target=main)
+    ft.run(main)

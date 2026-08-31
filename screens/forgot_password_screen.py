@@ -7,16 +7,16 @@ def forgot_password_view(page: ft.Page):
 
     username_field = ft.TextField(
         label="Email or Mobile Number",
-        prefix_icon=ft.icons.PERSON_OUTLINE,
+        prefix_icon=ft.Icons.PERSON_OUTLINE,
         border=ft.InputBorder.OUTLINE,
         border_radius=12,
         height=56,
         expand=True,
     )
 
-    def show_snack(msg: str, color=ft.colors.RED_600):
+    def show_snack(msg: str, color=ft.Colors.RED_600):
         page.snack_bar = ft.SnackBar(
-            content=ft.Text(msg, color=ft.colors.WHITE),
+            content=ft.Text(msg, color=ft.Colors.WHITE),
             bgcolor=color,
         )
         page.snack_bar.open = True
@@ -32,16 +32,16 @@ def forgot_password_view(page: ft.Page):
         if result["success"]:
             show_snack(
                 "Reset instructions sent! Check your email / SMS.",
-                color=ft.colors.GREEN_700,
+                color=ft.Colors.GREEN_700,
             )
             username_field.value = ""
-            page.go("/login")
+            page.navigate("/login")
         else:
             show_snack(result["error"])
 
     def go_back(e):
         username_field.value = ""
-        page.go("/login")
+        page.navigate("/login")
 
     # ── UI ───────────────────────────────────────────────────────────
     header = ft.Container(
@@ -50,8 +50,8 @@ def forgot_password_view(page: ft.Page):
                 ft.Row(
                     controls=[
                         ft.IconButton(
-                            icon=ft.icons.ARROW_BACK,
-                            icon_color=ft.colors.WHITE,
+                            icon=ft.Icons.ARROW_BACK,
+                            icon_color=ft.Colors.WHITE,
                             on_click=go_back,
                         ),
                     ],
@@ -60,22 +60,22 @@ def forgot_password_view(page: ft.Page):
                     "Forgot Password",
                     size=28,
                     weight=ft.FontWeight.BOLD,
-                    color=ft.colors.WHITE,
+                    color=ft.Colors.WHITE,
                 ),
                 ft.Text(
                     "We'll help you reset it",
                     size=14,
-                    color=ft.colors.with_opacity(0.88, ft.colors.WHITE),
+                    color=ft.Colors.with_opacity(0.88, ft.Colors.WHITE),
                 ),
             ],
             spacing=6,
         ),
         gradient=ft.LinearGradient(
-            begin=ft.alignment.top_center,
-            end=ft.alignment.bottom_center,
+            begin=ft.Alignment.TOP_CENTER,
+            end=ft.Alignment.BOTTOM_CENTER,
             colors=["#3949AB", "#5C6BC0"],
         ),
-        padding=ft.padding.only(top=40, bottom=36, left=16, right=24),
+        padding=ft.Padding(top=40, bottom=36, left=16, right=24),
         width=float("inf"),
     )
 
@@ -92,17 +92,17 @@ def forgot_password_view(page: ft.Page):
                     "Enter the email or mobile number associated with your account "
                     "and we will send you a password reset link.",
                     size=13,
-                    color=ft.colors.GREY_600,
+                    color=ft.Colors.GREY_600,
                 ),
                 ft.Container(height=8),
                 username_field,
                 ft.Container(height=12),
                 ft.ElevatedButton(
-                    text="SEND RESET LINK",
+                    content="SEND RESET LINK",
                     on_click=do_reset,
                     style=ft.ButtonStyle(
                         bgcolor={"": "#3949AB"},
-                        color={"": ft.colors.WHITE},
+                        color={"": ft.Colors.WHITE},
                         shape={"": ft.RoundedRectangleBorder(radius=12)},
                         elevation={"": 3},
                         text_style=ft.TextStyle(size=15, weight=ft.FontWeight.BOLD),
@@ -111,7 +111,7 @@ def forgot_password_view(page: ft.Page):
                     width=float("inf"),
                 ),
                 ft.OutlinedButton(
-                    text="Back to Sign In",
+                    content="Back to Sign In",
                     on_click=go_back,
                     style=ft.ButtonStyle(
                         color={"": "#3949AB"},
@@ -123,9 +123,9 @@ def forgot_password_view(page: ft.Page):
             ],
             spacing=10,
         ),
-        bgcolor=ft.colors.WHITE,
-        border_radius=ft.border_radius.only(top_left=32, top_right=32),
-        padding=ft.padding.symmetric(horizontal=28, vertical=32),
+        bgcolor=ft.Colors.WHITE,
+        border_radius=ft.BorderRadius(top_left=32, top_right=32, bottom_left=0, bottom_right=0),
+        padding=ft.Padding(left=28, right=28, top=32, bottom=32),
         expand=True,
     )
 

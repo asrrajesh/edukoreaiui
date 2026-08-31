@@ -1,5 +1,5 @@
 import re
-from passlib.hash import pbkdf2_sha256
+import bcrypt
 from datetime import datetime
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, DuplicateKeyError
@@ -41,13 +41,13 @@ def is_valid_username(value: str) -> bool:
 
 
 def hash_password(plain: str) -> str:
-    return pbkdf2_sha256.hash(plain)
+    return bcrypt.hashpw(plain.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
 
 def check_password(plain: str, hashed: str) -> bool:
     try:
-        return pbkdf2_sha256.verify(plain, hashed)
-    except Exception:
+        return bcrypt.checkpw(plain.encode("utf-8"), hashed.encode("utf-8"))
+    except (TypeError, ValueError):
         return False
 
 

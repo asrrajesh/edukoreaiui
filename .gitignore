@@ -25,6 +25,7 @@ MANIFEST
 
 # Virtual Environment
 venv/
+.venv/
 env/
 ENV/
 env.bak/
@@ -62,7 +63,6 @@ config/local_config.py
 # Local environment secrets
 
 # Flutter / Dart build outputs
-flet_android_build/.dart_tool/
-flet_android_build/.pub-cache/
-flet_android_build/build/
-flet_android_build/*.apk
+flet_android_build/
+apk/
+*.apk

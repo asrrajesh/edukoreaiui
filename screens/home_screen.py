@@ -4,49 +4,51 @@ import flet as ft
 def home_view(page: ft.Page):
     """Return the home view controls."""
 
-    current_user = page.session.get("current_user") or ""
+    current_user = page.session.store.get("current_user") or ""
 
-    def close_drawer(e=None):
-        page.drawer.open = False
-        page.update()
+    async def close_drawer(e=None):
+        await page.close_drawer()
 
-    def go_question_bank(e):
-        close_drawer()
-        page.go("/question_bank")
+    async def go_question_bank(e):
+        await close_drawer()
+        page.navigate("/question_bank")
 
     def do_logout(e):
-        page.session.remove("current_user")
-        page.go("/login")
+        page.session.store.remove("current_user")
+        page.navigate("/login")
 
-    def do_exit(e):
-        close_drawer()
-        page.window.close()
+    async def drawer_logout(e):
+        await close_drawer()
+        do_logout(e)
+
+    async def open_drawer(e):
+        await page.show_drawer()
 
     # ── Navigation Drawer ─────────────────────────────────────────────
     drawer_header = ft.Container(
         content=ft.Column(
             controls=[
-                ft.Icon(ft.icons.SCHOOL, size=48, color=ft.colors.WHITE),
+                ft.Icon(ft.Icons.SCHOOL, size=48, color=ft.Colors.WHITE),
                 ft.Text(
                     "MySchool",
                     size=20,
                     weight=ft.FontWeight.BOLD,
-                    color=ft.colors.WHITE,
+                    color=ft.Colors.WHITE,
                 ),
                 ft.Text(
                     current_user,
                     size=12,
-                    color=ft.colors.with_opacity(0.80, ft.colors.WHITE),
+                    color=ft.Colors.with_opacity(0.80, ft.Colors.WHITE),
                 ),
             ],
             spacing=4,
         ),
         gradient=ft.LinearGradient(
-            begin=ft.alignment.top_left,
-            end=ft.alignment.bottom_right,
+            begin=ft.Alignment.TOP_LEFT,
+            end=ft.Alignment.BOTTOM_RIGHT,
             colors=["#3949AB", "#5C6BC0"],
         ),
-        padding=ft.padding.only(left=20, top=40, bottom=24, right=20),
+        padding=ft.Padding(left=20, top=40, bottom=24, right=20),
         width=float("inf"),
     )
 
@@ -55,15 +57,15 @@ def home_view(page: ft.Page):
             drawer_header,
             ft.Divider(height=1),
             ft.ListTile(
-                leading=ft.Icon(ft.icons.HELP_OUTLINE, color="#3949AB"),
+                leading=ft.Icon(ft.Icons.HELP_OUTLINE, color="#3949AB"),
                 title=ft.Text("Question Bank"),
                 on_click=go_question_bank,
             ),
             ft.Divider(height=1),
             ft.ListTile(
-                leading=ft.Icon(ft.icons.EXIT_TO_APP, color=ft.colors.RED_400),
-                title=ft.Text("Exit"),
-                on_click=do_exit,
+                leading=ft.Icon(ft.Icons.LOGOUT, color=ft.Colors.RED_400),
+                title=ft.Text("Logout"),
+                on_click=drawer_logout,
             ),
         ],
     )
@@ -71,16 +73,16 @@ def home_view(page: ft.Page):
     # ── AppBar ────────────────────────────────────────────────────────
     page.appbar = ft.AppBar(
         leading=ft.IconButton(
-            icon=ft.icons.MENU,
-            icon_color=ft.colors.WHITE,
-            on_click=lambda e: setattr(page.drawer, "open", True) or page.update(),
+            icon=ft.Icons.MENU,
+            icon_color=ft.Colors.WHITE,
+            on_click=open_drawer,
         ),
-        title=ft.Text("MySchool", color=ft.colors.WHITE, weight=ft.FontWeight.BOLD),
+        title=ft.Text("MySchool", color=ft.Colors.WHITE, weight=ft.FontWeight.BOLD),
         bgcolor="#3949AB",
         actions=[
             ft.IconButton(
-                icon=ft.icons.LOGOUT,
-                icon_color=ft.colors.WHITE,
+                icon=ft.Icons.LOGOUT,
+                icon_color=ft.Colors.WHITE,
                 tooltip="Logout",
                 on_click=do_logout,
             ),
@@ -93,7 +95,7 @@ def home_view(page: ft.Page):
             ft.Container(expand=True),
             ft.Column(
                 controls=[
-                    ft.Icon(ft.icons.WAVING_HAND, size=64, color="#3949AB"),
+                    ft.Icon(ft.Icons.WAVING_HAND, size=64, color="#3949AB"),
                     ft.Text(
                         f"Welcome!",
                         size=24,
@@ -104,7 +106,7 @@ def home_view(page: ft.Page):
                     ft.Text(
                         "Tap  ☰  to open the menu and navigate.",
                         size=14,
-                        color=ft.colors.GREY_600,
+                        color=ft.Colors.GREY_600,
                         text_align=ft.TextAlign.CENTER,
                     ),
                 ],
@@ -120,5 +122,5 @@ def home_view(page: ft.Page):
     return ft.Container(
         content=body,
         expand=True,
-        bgcolor=ft.colors.GREY_50,
+        bgcolor=ft.Colors.GREY_50,
     )

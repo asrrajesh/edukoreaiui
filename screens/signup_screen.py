@@ -6,7 +6,7 @@ def signup_view(page: ft.Page):
     """Return the signup view controls."""
     username_field = ft.TextField(
         label="Email or Mobile Number",
-        prefix_icon=ft.icons.PERSON_OUTLINE,
+        prefix_icon=ft.Icons.PERSON_OUTLINE,
         border=ft.InputBorder.OUTLINE,
         border_radius=12,
         height=56,
@@ -14,18 +14,18 @@ def signup_view(page: ft.Page):
     )
     password_field = ft.TextField(
         label="Password",
-        prefix_icon=ft.icons.LOCK_OUTLINE,
+        prefix_icon=ft.Icons.LOCK_OUTLINE,
         password=True,
         can_reveal_password=True,
         border=ft.InputBorder.OUTLINE,
         border_radius=12,
-        helper_text="Minimum 8 characters",
+        helper="Minimum 8 characters",
         height=56,
         expand=True,
     )
     confirm_field = ft.TextField(
         label="Confirm Password",
-        prefix_icon=ft.icons.LOCK_OUTLINE,
+        prefix_icon=ft.Icons.LOCK_OUTLINE,
         password=True,
         can_reveal_password=True,
         border=ft.InputBorder.OUTLINE,
@@ -34,9 +34,9 @@ def signup_view(page: ft.Page):
         expand=True,
     )
 
-    def show_snack(msg: str, color=ft.colors.RED_600):
+    def show_snack(msg: str, color=ft.Colors.RED_600):
         page.snack_bar = ft.SnackBar(
-            content=ft.Text(msg, color=ft.colors.WHITE),
+            content=ft.Text(msg, color=ft.Colors.WHITE),
             bgcolor=color,
         )
         page.snack_bar.open = True
@@ -59,11 +59,11 @@ def signup_view(page: ft.Page):
 
         result = register_user(username, password)
         if result["success"]:
-            show_snack("Account created! Please sign in.", color=ft.colors.GREEN_700)
+            show_snack("Account created! Please sign in.", color=ft.Colors.GREEN_700)
             username_field.value = ""
             password_field.value = ""
             confirm_field.value = ""
-            page.go("/login")
+            page.navigate("/login")
         else:
             show_snack(result["error"])
 
@@ -71,7 +71,7 @@ def signup_view(page: ft.Page):
         username_field.value = ""
         password_field.value = ""
         confirm_field.value = ""
-        page.go("/login")
+        page.navigate("/login")
 
     # ── UI ───────────────────────────────────────────────────────────
     header = ft.Container(
@@ -80,8 +80,8 @@ def signup_view(page: ft.Page):
                 ft.Row(
                     controls=[
                         ft.IconButton(
-                            icon=ft.icons.ARROW_BACK,
-                            icon_color=ft.colors.WHITE,
+                            icon=ft.Icons.ARROW_BACK,
+                            icon_color=ft.Colors.WHITE,
                             on_click=go_back,
                         ),
                     ],
@@ -90,22 +90,22 @@ def signup_view(page: ft.Page):
                     "Create Account",
                     size=28,
                     weight=ft.FontWeight.BOLD,
-                    color=ft.colors.WHITE,
+                    color=ft.Colors.WHITE,
                 ),
                 ft.Text(
                     "Join MySchool today",
                     size=14,
-                    color=ft.colors.with_opacity(0.88, ft.colors.WHITE),
+                    color=ft.Colors.with_opacity(0.88, ft.Colors.WHITE),
                 ),
             ],
             spacing=6,
         ),
         gradient=ft.LinearGradient(
-            begin=ft.alignment.top_center,
-            end=ft.alignment.bottom_center,
+            begin=ft.Alignment.TOP_CENTER,
+            end=ft.Alignment.BOTTOM_CENTER,
             colors=["#3949AB", "#5C6BC0"],
         ),
-        padding=ft.padding.only(top=40, bottom=36, left=16, right=24),
+        padding=ft.Padding(top=40, bottom=36, left=16, right=24),
         width=float("inf"),
     )
 
@@ -119,11 +119,11 @@ def signup_view(page: ft.Page):
                 confirm_field,
                 ft.Container(height=12),
                 ft.ElevatedButton(
-                    text="CREATE ACCOUNT",
+                    content="CREATE ACCOUNT",
                     on_click=do_signup,
                     style=ft.ButtonStyle(
                         bgcolor={"": "#3949AB"},
-                        color={"": ft.colors.WHITE},
+                        color={"": ft.Colors.WHITE},
                         shape={"": ft.RoundedRectangleBorder(radius=12)},
                         elevation={"": 3},
                         text_style=ft.TextStyle(size=15, weight=ft.FontWeight.BOLD),
@@ -134,7 +134,7 @@ def signup_view(page: ft.Page):
                 ft.Container(height=8),
                 ft.Row(
                     controls=[
-                        ft.Text("Already have an account?", size=13, color=ft.colors.GREY_600),
+                        ft.Text("Already have an account?", size=13, color=ft.Colors.GREY_600),
                         ft.TextButton(
                             "Sign In",
                             on_click=go_back,
@@ -147,9 +147,9 @@ def signup_view(page: ft.Page):
             ],
             spacing=10,
         ),
-        bgcolor=ft.colors.WHITE,
-        border_radius=ft.border_radius.only(top_left=32, top_right=32),
-        padding=ft.padding.symmetric(horizontal=28, vertical=32),
+        bgcolor=ft.Colors.WHITE,
+        border_radius=ft.BorderRadius(top_left=32, top_right=32, bottom_left=0, bottom_right=0),
+        padding=ft.Padding(left=28, right=28, top=32, bottom=32),
         expand=True,
     )
 
