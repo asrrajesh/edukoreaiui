@@ -1,13 +1,18 @@
 """
-Configuration module for MySchool application.
+Configuration module for EduKoreAI application.
 Loads all application settings from .env file using python-dotenv.
 """
 
 import os
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
-load_dotenv()
+# Load environment variables from .env file (skip if unavailable, e.g. in a
+# packaged mobile build where dotenv's stack-based file lookup can't work).
+# The project configuration takes precedence over stale terminal variables.
+try:
+    load_dotenv(override=True)
+except Exception:
+    pass
 
 
 def get_env_bool(key: str, default: bool) -> bool:
@@ -41,16 +46,19 @@ def get_env_list(key: str, default: list) -> list:
 # DATABASE CONFIGURATION
 # ─────────────────────────────────────────────────────────────────────
 
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
-DB_NAME = os.getenv("DB_NAME", "myschool")
+MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://asrrajesh_db_user:Tdwhr20wZEg1dWXf@cluster0.citc42h.mongodb.net/?appName=Cluster0")
+DB_NAME = os.getenv("DB_NAME", "MySchool")
 DB_CONNECTION_TIMEOUT = get_env_int("DB_CONNECTION_TIMEOUT", 5000)
+
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
+ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-5-20250929")
 
 
 # ─────────────────────────────────────────────────────────────────────
 # APPLICATION SETTINGS
 # ─────────────────────────────────────────────────────────────────────
 
-APP_TITLE = os.getenv("APP_TITLE", "MySchool")
+APP_TITLE = os.getenv("APP_TITLE", "EduKoreAI")
 APP_VERSION = os.getenv("APP_VERSION", "1.0.0")
 THEME_COLOR = os.getenv("THEME_COLOR", "#3949AB")
 SECONDARY_COLOR = os.getenv("SECONDARY_COLOR", "#5C6BC0")

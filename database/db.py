@@ -78,6 +78,48 @@ def register_user(username: str, password: str) -> dict:
         return {"success": False, "error": str(exc)}
 
 
+def get_scanned_chapter(class_name: str, subject: str, chapter: str) -> dict | None:
+    """Return the saved chapter content for the given class/subject/chapter, if any."""
+    try:
+        return get_db().scanned_chapters.find_one({
+            "class": class_name,
+            "subject": subject,
+            "chapter": chapter,
+        })
+    except ConnectionFailure:
+        return None
+    except Exception:
+        return None
+
+
+def save_scanned_chapter(class_name: str, subject: str, chapter: str, content: str, username: str) -> dict:
+    """Create or update the chapter text and its metadata for a class/subject/chapter."""
+    try:
+        result = get_db().scanned_chapters.update_one(
+            {"class": class_name, "subject": subject, "chapter": chapter},
+            {
+                "$set": {
+                    "content": content,
+                    "updated_by": username,
+                    "updated_at": datetime.utcnow(),
+                },
+                "$setOnInsert": {
+                    "class": class_name,
+                    "subject": subject,
+                    "chapter": chapter,
+                    "created_by": username,
+                    "created_at": datetime.utcnow(),
+                },
+            },
+            upsert=True,
+        )
+        return {"success": True, "id": str(result.upserted_id) if result.upserted_id else None}
+    except ConnectionFailure:
+        return {"success": False, "error": "Cannot connect to database. Please try again."}
+    except Exception as exc:
+        return {"success": False, "error": str(exc)}
+
+
 def login_user(username: str, password: str) -> dict:
     """
     Authenticate a user.

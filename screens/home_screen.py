@@ -9,9 +9,9 @@ def home_view(page: ft.Page):
     async def close_drawer(e=None):
         await page.close_drawer()
 
-    async def go_question_bank(e):
+    async def go_setup_ebooks(e):
         await close_drawer()
-        page.navigate("/question_bank")
+        page.navigate("/academics/setup_ebooks")
 
     def do_logout(e):
         page.session.store.remove("current_user")
@@ -30,7 +30,7 @@ def home_view(page: ft.Page):
             controls=[
                 ft.Icon(ft.Icons.SCHOOL, size=48, color=ft.Colors.WHITE),
                 ft.Text(
-                    "MySchool",
+                    "EduKoreAI",
                     size=20,
                     weight=ft.FontWeight.BOLD,
                     color=ft.Colors.WHITE,
@@ -56,10 +56,16 @@ def home_view(page: ft.Page):
         controls=[
             drawer_header,
             ft.Divider(height=1),
-            ft.ListTile(
-                leading=ft.Icon(ft.Icons.HELP_OUTLINE, color="#3949AB"),
-                title=ft.Text("Question Bank"),
-                on_click=go_question_bank,
+            ft.ExpansionTile(
+                leading=ft.Icon(ft.Icons.DOCUMENT_SCANNER, color="#3949AB"),
+                title=ft.Text("Academics"),
+                controls=[
+                    ft.ListTile(
+                        leading=ft.Icon(ft.Icons.MENU_BOOK, color="#3949AB"),
+                        title=ft.Text("Setup E-Books"),
+                        on_click=go_setup_ebooks,
+                    ),
+                ],
             ),
             ft.Divider(height=1),
             ft.ListTile(
@@ -77,7 +83,7 @@ def home_view(page: ft.Page):
             icon_color=ft.Colors.WHITE,
             on_click=open_drawer,
         ),
-        title=ft.Text("MySchool", color=ft.Colors.WHITE, weight=ft.FontWeight.BOLD),
+        title=ft.Text("EduKoreAI", color=ft.Colors.WHITE, weight=ft.FontWeight.BOLD),
         bgcolor="#3949AB",
         actions=[
             ft.IconButton(

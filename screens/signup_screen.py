@@ -1,3 +1,5 @@
+import asyncio
+
 import flet as ft
 from database.db import register_user
 
@@ -35,14 +37,12 @@ def signup_view(page: ft.Page):
     )
 
     def show_snack(msg: str, color=ft.Colors.RED_600):
-        page.snack_bar = ft.SnackBar(
+        page.show_dialog(ft.SnackBar(
             content=ft.Text(msg, color=ft.Colors.WHITE),
             bgcolor=color,
-        )
-        page.snack_bar.open = True
-        page.update()
+        ))
 
-    def do_signup(e):
+    async def do_signup(e):
         username = username_field.value.strip()
         password = password_field.value
         confirm = confirm_field.value
@@ -57,15 +57,17 @@ def signup_view(page: ft.Page):
             show_snack("Passwords do not match.")
             return
 
-        result = register_user(username, password)
+        show_snack("Creating account...", color=ft.Colors.BLUE_700)
+        result = await asyncio.to_thread(register_user, username, password)
         if result["success"]:
             show_snack("Account created! Please sign in.", color=ft.Colors.GREEN_700)
             username_field.value = ""
             password_field.value = ""
             confirm_field.value = ""
+            page.update()
             page.navigate("/login")
         else:
-            show_snack(result["error"])
+            show_snack(result.get("error", "Registration failed. Please try again."))
 
     def go_back(e):
         username_field.value = ""
@@ -93,7 +95,7 @@ def signup_view(page: ft.Page):
                     color=ft.Colors.WHITE,
                 ),
                 ft.Text(
-                    "Join MySchool today",
+                    "Join EduKoreAI today",
                     size=14,
                     color=ft.Colors.with_opacity(0.88, ft.Colors.WHITE),
                 ),

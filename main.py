@@ -3,7 +3,7 @@ from screens.login_screen import login_view
 from screens.signup_screen import signup_view
 from screens.forgot_password_screen import forgot_password_view
 from screens.home_screen import home_view
-from screens.question_bank_screen import question_bank_view
+from screens.setup_ebooks_screen import setup_ebooks_view
 from config.config import (
     APP_TITLE,
     THEME_COLOR,
@@ -75,15 +75,15 @@ async def main(page: ft.Page):
             # home_view sets page.appbar/drawer, so the view must already be appended
             home_view_container.controls = [home_view(page)]
 
-        elif route == "/question_bank":
-            question_bank_container = ft.View(
-                route="/question_bank",
+        elif route == "/academics/setup_ebooks":
+            setup_ebooks_container = ft.View(
+                route="/academics/setup_ebooks",
                 controls=[],
-                padding=ft.Padding(left=24, right=24, top=16, bottom=16),  
-                bgcolor=ft.Colors.GREY_50,  
+                padding=0,
+                bgcolor=ft.Colors.GREY_50,
             )
-            page.views.append(question_bank_container)
-            question_bank_container.controls = [question_bank_view(page)]
+            page.views.append(setup_ebooks_container)
+            setup_ebooks_container.controls = [setup_ebooks_view(page)]
 
         page.update()
 

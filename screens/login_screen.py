@@ -66,7 +66,7 @@ def login_view(page: ft.Page):
             controls=[
                 ft.Icon(ft.Icons.SCHOOL, size=56, color=ft.Colors.WHITE),
                 ft.Text(
-                    "MySchool",
+                    "EduKoreAI",
                     size=32,
                     weight=ft.FontWeight.BOLD,
                     color=ft.Colors.WHITE, 
