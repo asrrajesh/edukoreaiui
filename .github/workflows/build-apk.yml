@@ -83,7 +83,7 @@ jobs:
           echo "mode=$mode" >> "$GITHUB_OUTPUT"
 
       - name: Build APK
-        run: flet build apk --${{ steps.mode.outputs.mode }} --verbose
+        run: flet build apk --flutter-build-args=--${{ steps.mode.outputs.mode }} --verbose
 
       - name: Locate built APK
         id: locate
