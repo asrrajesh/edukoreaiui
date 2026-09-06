@@ -44,6 +44,9 @@ jobs:
       - name: Install Android SDK components
         run: yes | sdkmanager --licenses || true
 
+      - name: Accept Flutter Android licenses
+        run: yes | flutter doctor --android-licenses
+
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
