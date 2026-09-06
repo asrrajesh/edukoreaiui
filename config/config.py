@@ -58,10 +58,3 @@ WINDOW_WIDTH = get_env_int("WINDOW_WIDTH", 400)
 WINDOW_HEIGHT = get_env_int("WINDOW_HEIGHT", 780)
 WINDOW_RESIZABLE = get_env_bool("WINDOW_RESIZABLE", True)
 BACKGROUND_COLOR = os.getenv("BACKGROUND_COLOR", "#F5F5F5")
-
-
-# ─────────────────────────────────────────────────────────────────────
-# SECURITY SETTINGS
-# ─────────────────────────────────────────────────────────────────────
-
-PASSWORD_MIN_LENGTH = get_env_int("PASSWORD_MIN_LENGTH", 8)
