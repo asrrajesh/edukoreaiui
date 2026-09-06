@@ -60,6 +60,10 @@ def login_view(page: ft.Page):
     def go_signup(e):
         page.navigate("/signup")
 
+    def do_guest_login(e):
+        page.session.store.set("current_user", "Guest")
+        page.navigate("/home")
+
     # ── UI ───────────────────────────────────────────────────────────
     header = ft.Container(
         content=ft.Column(
@@ -93,7 +97,18 @@ def login_view(page: ft.Page):
         content=ft.Column(
             controls=[
                 ft.Text("Welcome Back", size=22, weight=ft.FontWeight.BOLD, color="#1a237e"),
-                ft.Text("Sign in to continue", size=13, color=ft.Colors.GREY_600), 
+                ft.Row(
+                    controls=[
+                        ft.Text("Sign in to continue", size=13, color=ft.Colors.GREY_600),
+                        ft.Text("/", size=13, color=ft.Colors.GREY_600),
+                        ft.TextButton(
+                            "Continue as Guest",
+                            on_click=do_guest_login,
+                            style=ft.ButtonStyle(color={"": "#3949AB"}, padding=0),
+                        ),
+                    ],
+                    spacing=4,
+                ),
                 ft.Container(height=8),
                 username_field,
                 ft.Container(height=4),

@@ -4,6 +4,7 @@ from screens.signup_screen import signup_view
 from screens.forgot_password_screen import forgot_password_view
 from screens.home_screen import home_view
 from screens.setup_ebooks_screen import setup_ebooks_view
+from components.app_frame import with_app_frame
 from config.config import (
     APP_TITLE,
     THEME_COLOR,
@@ -56,13 +57,12 @@ async def main(page: ft.Page):
             page.views.append(
                 ft.View(
                     route="/forgot_password",
-                    controls=[forgot_password_view(page)],
+                    controls=[with_app_frame(forgot_password_view(page), page)],
                     padding=0,
                     bgcolor=ft.Colors.WHITE,  
                 )
             )
             page.appbar = None
-            page.drawer = None
 
         elif route == "/home":
             home_view_container = ft.View(
@@ -72,8 +72,10 @@ async def main(page: ft.Page):
                 bgcolor=ft.Colors.GREY_50,  
             )
             page.views.append(home_view_container)
-            # home_view sets page.appbar/drawer, so the view must already be appended
-            home_view_container.controls = [home_view(page)]
+            # home_view no longer builds its own appbar/drawer; the shared frame supplies them
+            home_content = home_view(page)
+            page.appbar = None
+            home_view_container.controls = [with_app_frame(home_content, page)]
 
         elif route == "/academics/setup_ebooks":
             setup_ebooks_container = ft.View(
@@ -83,7 +85,10 @@ async def main(page: ft.Page):
                 bgcolor=ft.Colors.GREY_50,
             )
             page.views.append(setup_ebooks_container)
-            setup_ebooks_container.controls = [setup_ebooks_view(page)]
+            setup_ebooks_content = setup_ebooks_view(page)
+            page.appbar = None
+
+            setup_ebooks_container.controls = [with_app_frame(setup_ebooks_content, page)]
 
         page.update()
 
