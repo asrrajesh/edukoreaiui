@@ -35,15 +35,11 @@ def get_env_int(key: str, default: int) -> int:
 
 
 # ─────────────────────────────────────────────────────────────────────
-# DATABASE CONFIGURATION
+# API SERVER CONFIGURATION
 # ─────────────────────────────────────────────────────────────────────
 
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
-DB_NAME = os.getenv("DB_NAME", "MySchool")
-DB_CONNECTION_TIMEOUT = get_env_int("DB_CONNECTION_TIMEOUT", 5000)
-
-ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
-ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-5-20250929")
+# Base URL of the edukoreaiapi backend (see ../edukoreaiapi).
+API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
 
 
 # ─────────────────────────────────────────────────────────────────────
@@ -69,17 +65,3 @@ BACKGROUND_COLOR = os.getenv("BACKGROUND_COLOR", "#F5F5F5")
 # ─────────────────────────────────────────────────────────────────────
 
 PASSWORD_MIN_LENGTH = get_env_int("PASSWORD_MIN_LENGTH", 8)
-
-
-# ─────────────────────────────────────────────────────────────────────
-# VALIDATION SETTINGS
-# ─────────────────────────────────────────────────────────────────────
-
-EMAIL_PATTERN = os.getenv(
-    "EMAIL_PATTERN",
-    r"^[\w\.\+\-]+@[\w\-]+\.[a-zA-Z]{2,}$"
-)
-MOBILE_PATTERN = os.getenv(
-    "MOBILE_PATTERN",
-    r"^\+?[0-9]{10,15}$"
-)

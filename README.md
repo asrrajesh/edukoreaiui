@@ -5,8 +5,7 @@ A modern, feature-rich educational application built with Flet and Python. MySch
 ## Features
 
 - **User Authentication**
-  - Secure sign-up and login with email/mobile number
-  - Password encryption using bcrypt
+  - Secure sign-up and login with email/mobile number (via the edukoreaiapi backend)
   - Password recovery functionality
   - Session management
 
@@ -30,9 +29,7 @@ A modern, feature-rich educational application built with Flet and Python. MySch
 Before running this project, ensure you have the following installed:
 
 - **Python 3.9 or higher** - [Download Python](https://www.python.org/downloads/)
-- **MongoDB** - [Download MongoDB](https://www.mongodb.com/try/download/community)
-  - MongoDB should be running locally on port 27017 (default)
-  - OR adjust `MONGO_URI` in the `.env` file for your MongoDB instance
+- **edukoreaiapi backend running** - this UI is a client only; start the API server from the sibling `edukoreaiapi` project first (see its README), then point this app at it via `API_BASE_URL` in `.env` (defaults to `http://localhost:8000`).
 
 ## Installation Steps
 
@@ -64,27 +61,22 @@ pip install -r requirements.txt
 
 This will install:
 - **flet** - UI framework
-- **pymongo** - MongoDB driver
-- **bcrypt** - Password hashing
+- **httpx** - HTTP client used to call the edukoreaiapi backend
 - **python-dotenv** - Environment variable management
 
 Or manually install:
 ```bash
-pip install flet pymongo bcrypt python-dotenv
+pip install flet httpx python-dotenv
 ```
 
-### 4. Start MongoDB
+### 4. Start the API server
 
-**Windows (if installed locally):**
+All database and Claude OCR logic now lives in the sibling `edukoreaiapi` project. Start it first (defaults to `http://localhost:8000`):
 ```bash
-mongod
+cd ..\edukoreaiapi
+python main.py
 ```
-
-**Using MongoDB Atlas (Cloud):**
-Update `MONGO_URI` in `database/db.py`:
-```python
-MONGO_URI = "mongodb+srv://username:password@cluster.mongodb.net/?retryWrites=true&w=majority"
-```
+Then set `API_BASE_URL` in this project's `.env` if the API isn't on `localhost:8000`.
 
 ### 5. Run the Application
 

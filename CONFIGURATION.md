@@ -2,6 +2,11 @@
 
 This document provides a comprehensive guide to configuring the MySchool application.
 
+> **Note:** Database (MongoDB) and Claude OCR configuration now live in the
+> sibling `edukoreaiapi` project. This `edukoreaiui` project only needs
+> `API_BASE_URL` (and UI/window settings below) — see that project's own
+> `.env.example` for the backend settings.
+
 ## Overview
 
 The MySchool application uses environment variables stored in a `.env` file for all configuration settings. This approach provides:

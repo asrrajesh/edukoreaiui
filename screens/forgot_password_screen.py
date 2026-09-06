@@ -1,5 +1,5 @@
 import flet as ft
-from database.db import request_password_reset
+from services.api_client import request_password_reset
 
 
 def forgot_password_view(page: ft.Page):

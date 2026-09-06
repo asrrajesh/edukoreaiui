@@ -1,7 +1,7 @@
 import asyncio
 
 import flet as ft
-from database.db import register_user
+from services.api_client import register_user
 
 
 def signup_view(page: ft.Page):

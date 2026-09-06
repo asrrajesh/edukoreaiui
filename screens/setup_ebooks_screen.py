@@ -1,7 +1,6 @@
 import asyncio
 import flet as ft
-from database.db import get_scanned_chapter, save_scanned_chapter
-from services.claude_ocr import extract_text_from_images
+from services.api_client import get_scanned_chapter, save_scanned_chapter, scan_images
 
 
 def setup_ebooks_view(page: ft.Page):
@@ -126,7 +125,7 @@ def setup_ebooks_view(page: ft.Page):
 
         page.show_dialog(ft.SnackBar(content=ft.Text("Scanning images. This may take a moment."), bgcolor=ft.Colors.BLUE_700))
         try:
-            content = await asyncio.to_thread(extract_text_from_images, selected_image_files)
+            content = await asyncio.to_thread(scan_images, selected_image_files)
         except Exception as exc:
             page.show_dialog(ft.SnackBar(content=ft.Text(f"Scan failed: {exc}"), bgcolor=ft.Colors.RED_600))
             return

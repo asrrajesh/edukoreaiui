@@ -1,5 +1,5 @@
 import flet as ft
-from database.db import login_user
+from services.api_client import login_user
 
 
 def login_view(page: ft.Page):
