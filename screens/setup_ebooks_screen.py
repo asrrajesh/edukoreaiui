@@ -1,5 +1,4 @@
 import asyncio
-
 import flet as ft
 from database.db import get_scanned_chapter, save_scanned_chapter
 from services.claude_ocr import extract_text_from_images
@@ -14,7 +13,7 @@ def setup_ebooks_view(page: ft.Page):
         label="Chapter Content",
         multiline=True,
         expand=True,
-        min_lines=1,
+        min_lines=4,          # Set higher baseline lines so it looks solid upfront
         max_lines=None,
         text_size=13,
         value="",
@@ -37,58 +36,66 @@ def setup_ebooks_view(page: ft.Page):
             content_field.value = record["content"] if record else ""
             page.update()
 
-    # Compact styling so each dropdown label fits on one line inside a single row.
-    dropdown_text_style = ft.TextStyle(size=13)
-    dropdown_label_style = ft.TextStyle(size=12)
-    dropdown_height = 44
-    dropdown_padding = ft.Padding(left=6, top=4, right=2, bottom=4)
+    class SelectorState:
+        def __init__(self, label, options):
+            self.label = label
+            self.options = options
+            self.value = None
+            self.chips = ft.Row(spacing=6, scroll=ft.ScrollMode.HIDDEN, expand=True)
+            self.field = ft.Container(
+                content=ft.Column(
+                    controls=[
+                        ft.Row(
+                            controls=[
+                                ft.Text(label, size=12, weight=ft.FontWeight.BOLD),
+                            ],
+                            height=18,
+                        ),
+                        self.chips,
+                    ],
+                    spacing=4,
+                ),
+                border=ft.Border.all(1, ft.Colors.GREY_700),
+                border_radius=6,
+                padding=ft.Padding(left=8, top=5, right=8, bottom=6),
+                height=62,
+            )
+            self.refresh()
 
-    def compact_label(text):
-        # no_wrap keeps the caption on one line instead of breaking mid-word.
-        return ft.Text(text, size=12, no_wrap=True)
+        def select(self, option):
+            self.value = option
+            self.refresh()
+            page.run_task(load_existing_content)
 
-    def dropdown_arrow():
-        return ft.Icon(ft.Icons.ARROW_DROP_DOWN, size=18)
+        def refresh(self):
+            self.chips.controls = [
+                ft.Container(
+                    content=ft.Text(
+                        option,
+                        size=12,
+                        color=ft.Colors.WHITE if option == self.value else ft.Colors.GREY_900,
+                    ),
+                    bgcolor="#3949AB" if option == self.value else ft.Colors.WHITE,
+                    border=ft.Border.all(1, ft.Colors.GREY_500),
+                    border_radius=14,
+                    padding=ft.Padding(left=10, top=4, right=10, bottom=4),
+                    on_click=lambda e, selected=option: self.select(selected),
+                )
+                for option in self.options
+            ]
 
-    class_dropdown = ft.Dropdown(
-        label=compact_label("Class"),
-        options=[ft.DropdownOption(text=roman) for roman in ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]],
-        expand=3,
-        trailing_icon=dropdown_arrow(),
-        selected_trailing_icon=dropdown_arrow(),
-        dense=True,
-        height=dropdown_height,
-        content_padding=dropdown_padding,
-        text_style=dropdown_text_style,
-        label_style=dropdown_label_style,
-        on_select=load_existing_content,
+    class_dropdown_state = SelectorState(
+        "Class", ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"]
     )
-    subject_dropdown = ft.Dropdown(
-        label=compact_label("Subject"),
-        options=[ft.DropdownOption(text=subject) for subject in ["Science", "English"]],
-        expand=4,
-        trailing_icon=dropdown_arrow(),
-        selected_trailing_icon=dropdown_arrow(),
-        dense=True,
-        height=dropdown_height,
-        content_padding=dropdown_padding,
-        text_style=dropdown_text_style,
-        label_style=dropdown_label_style,
-        on_select=load_existing_content,
+    subject_dropdown_state = SelectorState(
+        "Subject", ["Science", "English", "Computer Science", "Mathematics"]
     )
-    chapter_dropdown = ft.Dropdown(
-        label=compact_label("Chapter"),
-        options=[ft.DropdownOption(text=str(chapter)) for chapter in range(1, 51)],
-        expand=4,
-        trailing_icon=dropdown_arrow(),
-        selected_trailing_icon=dropdown_arrow(),
-        dense=True,
-        height=dropdown_height,
-        content_padding=dropdown_padding,
-        text_style=dropdown_text_style,
-        label_style=dropdown_label_style,
-        on_select=load_existing_content,
+    chapter_dropdown_state = SelectorState(
+        "Chapter", [str(chapter) for chapter in range(1, 51)]
     )
+    class_dropdown = class_dropdown_state
+    subject_dropdown = subject_dropdown_state
+    chapter_dropdown = chapter_dropdown_state
 
     file_picker = ft.FilePicker()
     page.services.append(file_picker)
@@ -163,61 +170,78 @@ def setup_ebooks_view(page: ft.Page):
     )
     page.drawer = None
 
-    field_row_height = 34
+    field_row_height = 36
+
+    # Balanced form layout matching clean production styling constraints
+    form_layout = ft.Column(
+        scroll=ft.ScrollMode.HIDDEN,
+        expand=True,
+        horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
+        spacing=16,
+        controls=[
+            ft.Text("Scan E-Books pages", size=24, weight=ft.FontWeight.BOLD, color="#1a237e"),
+            ft.Text("Choose the class, subject, chapter, and images to scan.", color=ft.Colors.GREY_600, size=14),
+            
+            # Dropdowns stacked cleanly into a clear column block
+            class_dropdown.field,
+            subject_dropdown.field,
+            chapter_dropdown.field,
+            
+            # Operational execution actions
+            ft.Row(
+                controls=[
+                    ft.OutlinedButton(
+                        content=ft.Row(
+                            controls=[
+                                ft.Icon(ft.Icons.ATTACH_FILE, size=16),
+                                ft.Text("Attach Images", size=13),
+                            ],
+                            tight=True,
+                            spacing=6,
+                        ),
+                        on_click=choose_images,
+                        height=field_row_height,
+                        style=ft.ButtonStyle(
+                            padding=ft.Padding(left=12, top=0, right=12, bottom=0),
+                        ),
+                    ),
+                    ft.ElevatedButton(
+                        content=ft.Text("SCAN", size=13),
+                        on_click=scan_chapters,
+                        style=ft.ButtonStyle(
+                            bgcolor={"": "#3949AB"},
+                            color={"": ft.Colors.WHITE},
+                            padding=ft.Padding(left=20, top=0, right=20, bottom=0),
+                        ),
+                        height=field_row_height,
+                    ),
+                ],
+                spacing=12,
+            ),
+            selected_files,
+            content_field,
+            
+            # Submission UI element positioning anchors
+            ft.Container(
+                content=ft.ElevatedButton(
+                    content=ft.Text("SUBMIT", weight=ft.FontWeight.BOLD),
+                    color=ft.Colors.WHITE,
+                    bgcolor="#3949AB",
+                    height=46,
+                    expand=True,
+                    style=ft.ButtonStyle(
+                        shape=ft.RoundedRectangleBorder(radius=23),
+                    ),
+                    on_click=submit_content,
+                ),
+                width=page.width - 40,
+                padding=ft.Padding(left=0, top=10, right=0, bottom=20),
+            )
+        ]
+    )
 
     return ft.Container(
-        content=ft.Column(
-            controls=[
-                ft.Text("Scan E-Books pages", size=24, weight=ft.FontWeight.BOLD, color="#1a237e"),
-                ft.Text("Choose the class, subject, chapter, and images to scan.", color=ft.Colors.GREY_600),
-                ft.Row(
-                    controls=[class_dropdown, subject_dropdown, chapter_dropdown],
-                    spacing=8,
-                ),
-                ft.Row(
-                    controls=[
-                        ft.OutlinedButton(
-                            content=ft.Row(
-                                controls=[
-                                    ft.Icon(ft.Icons.ATTACH_FILE, size=16),
-                                    ft.Text("Attach Images", size=13),
-                                ],
-                                tight=True,
-                                spacing=6,
-                            ),
-                            on_click=choose_images,
-                            height=field_row_height,
-                            style=ft.ButtonStyle(
-                                padding=ft.Padding(left=12, top=0, right=12, bottom=0),
-                            ),
-                        ),
-                        ft.ElevatedButton(
-                            content=ft.Text("SCAN", size=13),
-                            on_click=scan_chapters,
-                            style=ft.ButtonStyle(
-                                bgcolor={"": "#3949AB"},
-                                color={"": ft.Colors.WHITE},
-                                padding=ft.Padding(left=20, top=0, right=20, bottom=0),
-                            ),
-                            height=field_row_height,
-                        ),
-                    ],
-                    spacing=12,
-                ),
-                selected_files,
-                ft.Container(content=content_field, expand=True),
-                ft.ElevatedButton(
-                    content="SUBMIT",
-                    on_click=submit_content,
-                    style=ft.ButtonStyle(bgcolor={"": "#3949AB"}, color={"": ft.Colors.WHITE}),
-                    height=48,
-                    width=float("inf"),
-                ),
-            ],
-            spacing=12,
-            expand=True,
-        ),
-        padding=24,
-        expand=True,
-        bgcolor=ft.Colors.GREY_50,
+        content=form_layout,
+        padding=ft.Padding(left=20, top=20, right=20, bottom=20),
+        expand=True
     )
