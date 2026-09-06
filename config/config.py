@@ -46,7 +46,7 @@ def get_env_list(key: str, default: list) -> list:
 # DATABASE CONFIGURATION
 # ─────────────────────────────────────────────────────────────────────
 
-MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://asrrajesh_db_user:Tdwhr20wZEg1dWXf@cluster0.citc42h.mongodb.net/?appName=Cluster0")
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
 DB_NAME = os.getenv("DB_NAME", "MySchool")
 DB_CONNECTION_TIMEOUT = get_env_int("DB_CONNECTION_TIMEOUT", 5000)
 

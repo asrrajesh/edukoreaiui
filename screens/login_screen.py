@@ -8,7 +8,6 @@ def login_view(page: ft.Page):
     # ── State ────────────────────────────────────────────────────────
     username_field = ft.TextField(
         label="Email or Mobile Number",
-        value="9972130551",
         prefix_icon=ft.Icons.PERSON_OUTLINE,
         border=ft.InputBorder.OUTLINE,
         border_radius=12,
@@ -16,7 +15,6 @@ def login_view(page: ft.Page):
     )
     password_field = ft.TextField(
         label="Password",
-        value="Welcome@123",
         prefix_icon=ft.Icons.LOCK_OUTLINE,
         password=True,
         can_reveal_password=True,

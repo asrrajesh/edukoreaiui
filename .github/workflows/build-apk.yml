@@ -1,0 +1,94 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      build_mode:
+        description: "Build mode"
+        required: true
+        default: "release"
+        type: choice
+        options:
+          - release
+          - debug
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+
+      - name: Install Android SDK components
+        run: yes | sdkmanager --licenses || true
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install flet
+
+      - name: Create .env file from repo secrets
+        run: |
+          cat <<EOF > .env
+          MONGO_URI=${{ secrets.MONGO_URI }}
+          DB_NAME=${{ secrets.DB_NAME }}
+          ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_MODEL=${{ secrets.ANTHROPIC_MODEL }}
+          EOF
+
+      - name: Flutter doctor
+        run: flutter doctor -v
+
+      - name: Determine build mode
+        id: mode
+        shell: bash
+        run: |
+          mode="${{ github.event.inputs.build_mode }}"
+          if [ -z "$mode" ]; then
+            mode="release"
+          fi
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"
+
+      - name: Build APK
+        run: flet build apk --${{ steps.mode.outputs.mode }} --verbose
+
+      - name: Locate built APK
+        id: locate
+        shell: bash
+        run: |
+          apk_path=$(find build/apk -name "*.apk" | head -n 1)
+          if [ -z "$apk_path" ]; then
+            echo "No APK found!" >&2
+            exit 1
+          fi
+          echo "apk_path=$apk_path" >> "$GITHUB_OUTPUT"
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: edukoreai-${{ steps.mode.outputs.mode }}-apk
+          path: ${{ steps.locate.outputs.apk_path }}
+          if-no-files-found: error
