@@ -9,64 +9,107 @@ QUESTION_TYPES = [
     ("long", "Answer the following questions (Long)"),
 ]
 
+# Fixed column widths keep the header and every data row aligned as a table.
+COL_TYPE_WIDTH = 260
+COL_COUNT_WIDTH = 120
+COL_MARKS_WIDTH = 140
+COL_TOTAL_WIDTH = 80
+COL_ACTION_WIDTH = 90
+CELL_SPACING = 8
+ROW_HEIGHT = 52
+
+
+def _cell(control, width):
+    """Fixed-width table cell wrapper."""
+    return ft.Container(
+        content=control,
+        width=width,
+        height=ROW_HEIGHT,
+        alignment=ft.Alignment.CENTER,
+        padding=ft.Padding(left=4, top=0, right=4, bottom=0),
+    )
+
+
+def _header_cell(label, width):
+    return ft.Container(
+        content=ft.Text(
+            label,
+            size=12,
+            weight=ft.FontWeight.BOLD,
+            color=ft.Colors.GREY_700,
+            text_align=ft.TextAlign.CENTER,
+            max_lines=2,
+        ),
+        width=width,
+        height=42,
+        alignment=ft.Alignment.CENTER,
+        padding=ft.Padding(left=4, top=0, right=4, bottom=0),
+    )
+
 
 class QuestionRow:
     """One repeater row: question type, count, marks and the computed row total."""
 
-    def __init__(self, on_type_change, on_remove, on_recalc):
+    def __init__(self, on_type_change, on_remove, on_recalc, on_add):
         self._on_type_change = on_type_change
         self._on_remove = on_remove
         self._on_recalc = on_recalc
+        self._on_add = on_add
 
         self.type_dropdown = ft.Dropdown(
-            label="Question Type",
             options=[],
-            width=260,
+            hint_text="Select type",
+            text_size=13,
+            dense=True,
+            expand=True,
             on_select=lambda e: self._on_type_change(),
         )
         self.count_field = ft.TextField(
-            label="Question Count",
-            width=140,
+            text_size=13,
+            dense=True,
+            text_align=ft.TextAlign.CENTER,
+            expand=True,
             keyboard_type=ft.KeyboardType.NUMBER,
             on_change=lambda e: self._on_recalc(),
         )
         self.marks_field = ft.TextField(
-            label="Marks Per Question",
-            width=160,
+            text_size=13,
+            dense=True,
+            text_align=ft.TextAlign.CENTER,
+            expand=True,
             keyboard_type=ft.KeyboardType.NUMBER,
             on_change=lambda e: self._on_recalc(),
         )
         self.total_text = ft.Text("0", size=15, weight=ft.FontWeight.BOLD, color="#1a237e")
+        self.add_button = ft.IconButton(
+            icon=ft.Icons.ADD_CIRCLE_OUTLINE,
+            icon_color="#3949AB",
+            tooltip="Add",
+            on_click=lambda e: self._on_add(),
+        )
         self.delete_button = ft.IconButton(
             icon=ft.Icons.DELETE_OUTLINE,
             icon_color=ft.Colors.RED_400,
-            tooltip="Remove row",
+            tooltip="Delete",
             on_click=lambda e: self._on_remove(self),
         )
 
         self.row_control = ft.Container(
             content=ft.Row(
                 controls=[
-                    self.type_dropdown,
-                    self.count_field,
-                    self.marks_field,
-                    ft.Column(
-                        controls=[
-                            ft.Text("Row Total", size=11, color=ft.Colors.GREY_600),
-                            self.total_text,
-                        ],
-                        spacing=2,
-                        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                    ),
-                    self.delete_button,
+                    _cell(self.type_dropdown, COL_TYPE_WIDTH),
+                    _cell(self.count_field, COL_COUNT_WIDTH),
+                    _cell(self.marks_field, COL_MARKS_WIDTH),
+                    _cell(self.total_text, COL_TOTAL_WIDTH),
+                    _cell(self.add_button, COL_ACTION_WIDTH),
+                    _cell(self.delete_button, COL_ACTION_WIDTH),
                 ],
-                spacing=12,
+                spacing=CELL_SPACING,
                 vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                wrap=True,
+                wrap=False,
+                tight=True,
             ),
-            border=ft.Border.all(1, ft.Colors.GREY_300),
-            border_radius=8,
-            padding=10,
+            border=ft.Border(bottom=ft.BorderSide(1, ft.Colors.GREY_300)),
         )
 
     def refresh_total(self):
@@ -204,25 +247,45 @@ def generate_questions_view(page: ft.Page):
 
     # ── Dynamic question rows ────────────────────────────────────────────
     rows: list[QuestionRow] = []
-    rows_column = ft.Column(spacing=10)
+    rows_column = ft.Column(spacing=0, tight=True)
     ready_message = ft.Text(
         "Select class, subject, and chapter to configure questions.",
         color=ft.Colors.GREY_600,
         size=13,
     )
-    add_row_button = ft.OutlinedButton(
+    header_row = ft.Container(
         content=ft.Row(
-            controls=[ft.Icon(ft.Icons.ADD, size=16), ft.Text("Add Row", size=13)],
+            controls=[
+                _header_cell("Question Type", COL_TYPE_WIDTH),
+                _header_cell("Question Count", COL_COUNT_WIDTH),
+                _header_cell("Marks Per Question", COL_MARKS_WIDTH),
+                _header_cell("Total", COL_TOTAL_WIDTH),
+                _header_cell("Add", COL_ACTION_WIDTH),
+                _header_cell("Delete", COL_ACTION_WIDTH),
+            ],
+            spacing=CELL_SPACING,
+            wrap=False,
             tight=True,
-            spacing=6,
         ),
-        on_click=lambda e: add_row(),
+        bgcolor=ft.Colors.GREY_100,
+        border=ft.Border(bottom=ft.BorderSide(1, ft.Colors.GREY_400)),
+    )
+    # Single horizontally swipeable strip; ScrollMode.HIDDEN keeps the bar off-screen.
+    table = ft.Row(
+        controls=[
+            ft.Column(
+                controls=[header_row, rows_column],
+                spacing=0,
+                tight=True,
+            )
+        ],
+        scroll=ft.ScrollMode.HIDDEN,
+        vertical_alignment=ft.CrossAxisAlignment.START,
     )
     rows_section = ft.Column(
         controls=[
             ft.Text("Question Configuration", size=16, weight=ft.FontWeight.BOLD, color="#1a237e"),
-            rows_column,
-            add_row_button,
+            table,
         ],
         spacing=12,
         visible=False,
@@ -246,9 +309,10 @@ def generate_questions_view(page: ft.Page):
     def render_rows(update_page: bool = True):
         rows_column.controls = [row.row_control for row in rows]
         refresh_dropdown_options()
-        add_row_button.disabled = len(rows) >= len(QUESTION_TYPES)
+        at_max = len(rows) >= len(QUESTION_TYPES)
         for row in rows:
-            row.delete_button.visible = len(rows) > 1
+            row.add_button.disabled = at_max
+            row.delete_button.disabled = len(rows) <= 1
         if update_page:
             page.update()
 
@@ -263,6 +327,7 @@ def generate_questions_view(page: ft.Page):
             on_type_change=lambda: (refresh_dropdown_options(), page.update()),
             on_remove=remove_row,
             on_recalc=lambda: None,
+            on_add=lambda: add_row(),
         )
         row._on_recalc = lambda r=row: recalc_row(r)
         rows.append(row)
