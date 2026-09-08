@@ -87,6 +87,41 @@ def save_scanned_chapter(class_name: str, subject: str, chapter: str, content: s
         return _connection_error(exc)
 
 
+def get_classes() -> list[str]:
+    try:
+        response = httpx.get(f"{API_BASE_URL}/api/ebooks/classes", timeout=_TIMEOUT)
+        response.raise_for_status()
+        return response.json().get("classes", [])
+    except httpx.HTTPError:
+        return []
+
+
+def get_subjects(class_name: str) -> list[str]:
+    try:
+        response = httpx.get(
+            f"{API_BASE_URL}/api/ebooks/subjects",
+            params={"class_name": class_name},
+            timeout=_TIMEOUT,
+        )
+        response.raise_for_status()
+        return response.json().get("subjects", [])
+    except httpx.HTTPError:
+        return []
+
+
+def get_chapters(class_name: str, subject: str) -> list[str]:
+    try:
+        response = httpx.get(
+            f"{API_BASE_URL}/api/ebooks/chapters",
+            params={"class_name": class_name, "subject": subject},
+            timeout=_TIMEOUT,
+        )
+        response.raise_for_status()
+        return response.json().get("chapters", [])
+    except httpx.HTTPError:
+        return []
+
+
 def scan_images(image_files) -> str:
     """Upload images to the API and return the extracted text."""
     files = [

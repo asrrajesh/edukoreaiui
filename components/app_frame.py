@@ -17,6 +17,10 @@ def build_drawer(page: ft.Page) -> ft.NavigationDrawer:
         await close_drawer()
         page.navigate("/academics/setup_ebooks")
 
+    async def go_generate_questions(e):
+        await close_drawer()
+        page.navigate("/academics/generate_questions")
+
     async def drawer_logout(e):
         await close_drawer()
         page.session.store.remove("current_user")
@@ -52,6 +56,11 @@ def build_drawer(page: ft.Page) -> ft.NavigationDrawer:
                         leading=ft.Icon(ft.Icons.MENU_BOOK, color="#3949AB"),
                         title=ft.Text("Setup E-Books"),
                         on_click=go_setup_ebooks,
+                    ),
+                    ft.ListTile(
+                        leading=ft.Icon(ft.Icons.QUIZ, color="#3949AB"),
+                        title=ft.Text("Generate Questions"),
+                        on_click=go_generate_questions,
                     ),
                 ],
             ),

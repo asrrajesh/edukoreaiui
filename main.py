@@ -4,6 +4,7 @@ from screens.signup_screen import signup_view
 from screens.forgot_password_screen import forgot_password_view
 from screens.home_screen import home_view
 from screens.setup_ebooks_screen import setup_ebooks_view
+from screens.generate_questions_screen import generate_questions_view
 from components.app_frame import with_app_frame
 from config.config import (
     APP_TITLE,
@@ -89,6 +90,19 @@ async def main(page: ft.Page):
             page.appbar = None
 
             setup_ebooks_container.controls = [with_app_frame(setup_ebooks_content, page)]
+
+        elif route == "/academics/generate_questions":
+            generate_questions_container = ft.View(
+                route="/academics/generate_questions",
+                controls=[],
+                padding=0,
+                bgcolor=ft.Colors.GREY_50,
+            )
+            page.views.append(generate_questions_container)
+            generate_questions_content = generate_questions_view(page)
+            page.appbar = None
+
+            generate_questions_container.controls = [with_app_frame(generate_questions_content, page)]
 
         page.update()
 
